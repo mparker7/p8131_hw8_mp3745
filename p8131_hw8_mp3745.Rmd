@@ -54,3 +54,30 @@ chisq.test(table(baseline_health_df$txt, baseline_health_df$health))
 Since the p-value from the chi-squared test of independence is greater than 0.05, we fail to reject the null hypothesis of no association between treatment group and health self rating at the time of randomization. This is good because we want balanced self health ratings for the two treatment groups.
 
 
+#### (b)
+
+Fit a GEE with unstructure correlation to evaluate the relationship of the participants self-ratings as a function of the effects of health self-rating at the baseline, treatment group, month post randomization, and age group as predictors
+```{r}
+# add baseline health, subset time > 1, and fix covariates
+gee_health_df = health_df %>% 
+  arrange(id, time) %>% 
+  group_by(id) %>% 
+  mutate(
+    baseline = first(health),
+    resp = if_else(health == "Good", 1, 0),
+    month = if_else(time == 2, "3",
+                    if_else(time == 3, "6",
+                            if_else(time == 4, "12", "1")))
+  ) %>% 
+  ungroup() %>% 
+  filter(time > 1) 
+  
+
+# Fit gee
+gee_b = gee(resp ~ baseline + txt + month + agegroup, data = gee_health_df, family = "binomial", id = id, 
+                 corstr = "unstructured", scale.fix = TRUE, scale.value = 1)
+
+summary(gee_b)
+```
+
+Based on the model output, the log odds ratio of being in the good health condition for treatment vs control is 2.102 for a subject with the same baseline health, same month, and same agegroup. In addition, having a poor baseline health reading is associated with worse health outcomes. Month 3 and 6 are associated with slightly worse health outcome than month 12, indicating the self-rated health improves over time. Finally, age group 25-34 and 35+ are asssociated with better self health rating compared to age group 15-24.
