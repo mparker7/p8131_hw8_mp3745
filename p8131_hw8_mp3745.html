@@ -12,7 +12,7 @@
 
 <meta name="author" content="Matthew Parker" />
 
-<meta name="date" content="2020-04-20" />
+<meta name="date" content="2020-04-21" />
 
 <title>p8131_hw8_mp3745</title>
 
@@ -365,7 +365,7 @@ summary {
 
 <h1 class="title toc-ignore">p8131_hw8_mp3745</h1>
 <h4 class="author">Matthew Parker</h4>
-<h4 class="date">2020-04-20</h4>
+<h4 class="date">2020-04-21</h4>
 
 </div>
 
@@ -401,23 +401,21 @@ gee_health_df = health_df %&gt;%
   mutate(
     baseline = first(health),
     resp = if_else(health == &quot;Good&quot;, 1, 0),
-    month = if_else(time == 2, &quot;3&quot;,
-                    if_else(time == 3, &quot;6&quot;,
-                            if_else(time == 4, &quot;12&quot;, &quot;1&quot;)))
+    time = recode(time, '2' = 3, '3' = 6, '4' = 12)
   ) %&gt;% 
   ungroup() %&gt;% 
   filter(time &gt; 1) 
   
 
 # Fit gee
-gee_b = gee(resp ~ baseline + txt + month + agegroup, data = gee_health_df, family = &quot;binomial&quot;, id = id, 
+gee_b = gee(resp ~ baseline + txt + time + agegroup, data = gee_health_df, family = &quot;binomial&quot;, id = id, 
                  corstr = &quot;unstructured&quot;, scale.fix = TRUE, scale.value = 1)</code></pre>
 <pre><code>## Beginning Cgee S-function, @(#) geeformula.q 4.13 98/01/27</code></pre>
 <pre><code>## running glm to get initial regression estimate</code></pre>
-<pre><code>##     (Intercept)    baselinePoor txtIntervention          month3 
-##      0.43596550     -1.71921168      2.00427081     -0.23669886 
-##          month6   agegroup25-34     agegroup35+ 
-##      0.02086659      1.19686727      1.39586555</code></pre>
+<pre><code>##     (Intercept)    baselinePoor txtIntervention            time 
+##      0.18528086     -1.71063852      1.99669985      0.02536275 
+##   agegroup25-34     agegroup35+ 
+##      1.19749448      1.39742621</code></pre>
 <pre class="r"><code>summary(gee_b)</code></pre>
 <pre><code>## 
 ##  GEE:  GENERALIZED LINEAR MODELS FOR DEPENDENT DATA
@@ -429,82 +427,79 @@ gee_b = gee(resp ~ baseline + txt + month + agegroup, data = gee_health_df, fami
 ##  Correlation Structure:     Unstructured 
 ## 
 ## Call:
-## gee(formula = resp ~ baseline + txt + month + agegroup, id = id, 
+## gee(formula = resp ~ baseline + txt + time + agegroup, id = id, 
 ##     data = gee_health_df, family = &quot;binomial&quot;, corstr = &quot;unstructured&quot;, 
 ##     scale.fix = TRUE, scale.value = 1)
 ## 
 ## Summary of Residuals:
 ##         Min          1Q      Median          3Q         Max 
-## -0.97980500 -0.20059647  0.09443168  0.18341903  0.83995928 
+## -0.98144969 -0.18317233  0.08914345  0.17159228  0.83093959 
 ## 
 ## 
 ## Coefficients:
-##                    Estimate Naive S.E.     Naive z Robust S.E.    Robust z
-## (Intercept)      0.44491291  0.5040522  0.88267227   0.5072874  0.87704314
-## baselinePoor    -1.81644176  0.4903914 -3.70406510   0.5113346 -3.55235420
-## txtIntervention  2.10216951  0.4883734  4.30443050   0.5362715  3.91997276
-## month3          -0.28639628  0.3348059 -0.85540986   0.4161739 -0.68816485
-## month6          -0.01104176  0.4309440 -0.02562226   0.3837051 -0.02877668
-## agegroup25-34    1.33483616  0.4807099  2.77680215   0.5043903  2.64643482
-## agegroup35+      1.41109016  0.7988566  1.76638730   0.7856080  1.79617593
+##                    Estimate Naive S.E.    Naive z Robust S.E.   Robust z
+## (Intercept)      0.12457924 0.47137316  0.2642901  0.51374172  0.2424939
+## baselinePoor    -1.81418056 0.48958528 -3.7055456  0.50961334 -3.5599158
+## txtIntervention  2.10225898 0.48779381  4.3097286  0.53777951  3.9091467
+## time             0.03243343 0.03665686  0.8847848  0.04755408  0.6820326
+## agegroup25-34    1.35250468 0.48130172  2.8100973  0.50420159  2.6824681
+## agegroup35+      1.42052166 0.79781620  1.7805124  0.78372968  1.8125148
 ## 
 ## Estimated Scale Parameter:  1
-## Number of Iterations:  6
+## Number of Iterations:  5
 ## 
 ## Working Correlation
 ##           [,1]      [,2]      [,3]
-## [1,] 1.0000000 0.1794167 0.5606246
-## [2,] 0.1794167 1.0000000 0.2105216
-## [3,] 0.5606246 0.2105216 1.0000000</code></pre>
+## [1,] 1.0000000 0.1719328 0.5859907
+## [2,] 0.1719328 1.0000000 0.2013998
+## [3,] 0.5859907 0.2013998 1.0000000</code></pre>
 <p>Based on the model output, the log odds ratio of self rating in good health condition for treatment vs control is 2.102 for a subject with the same baseline health, same month, and same agegroup. In addition, having a poor baseline health reading is associated with worse health outcomes. Month 3 and 6 are associated with slightly worse health outcome than month 12, indicating the self-rated health improves over time. Finally, age group 25-34 and 35+ are asssociated with better self health rating compared to age group 15-24.</p>
 </div>
 <div id="c" class="section level4">
 <h4>(c)</h4>
 <p>Fit a generalized linear mixed effects model with subject-specific random intercepts</p>
 <pre class="r"><code>#Fit GLMM
-glmm_c = glmer(resp ~ baseline + txt + month + agegroup + (1 | id), family = 'binomial', data = gee_health_df)
+glmm_c = glmer(resp ~ baseline + txt + time + agegroup + (1 | id), family = 'binomial', data = gee_health_df)
 
 summary(glmm_c)</code></pre>
 <pre><code>## Generalized linear mixed model fit by maximum likelihood (Laplace
 ##   Approximation) [glmerMod]
 ##  Family: binomial  ( logit )
-## Formula: resp ~ baseline + txt + month + agegroup + (1 | id)
+## Formula: resp ~ baseline + txt + time + agegroup + (1 | id)
 ##    Data: gee_health_df
 ## 
 ##      AIC      BIC   logLik deviance df.resid 
-##    186.8    213.1    -85.4    170.8      191 
+##    185.0    208.0    -85.5    171.0      192 
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -2.6959 -0.2509  0.1571  0.2773  1.9093 
+## -2.6112 -0.2327  0.1402  0.2982  1.8239 
 ## 
 ## Random effects:
 ##  Groups Name        Variance Std.Dev.
-##  id     (Intercept) 4.861    2.205   
+##  id     (Intercept) 5.721    2.392   
 ## Number of obs: 199, groups:  id, 78
 ## 
 ## Fixed effects:
-##                  Estimate Std. Error  z value Pr(&gt;|z|)    
-## (Intercept)      0.696096   0.001569   443.65   &lt;2e-16 ***
-## baselinePoor    -2.686081   0.001569 -1712.03   &lt;2e-16 ***
-## txtIntervention  3.377730   0.001569  2152.76   &lt;2e-16 ***
-## month3          -0.363923   0.001569  -231.96   &lt;2e-16 ***
-## month6           0.002589   0.001569     1.65   0.0989 .  
-## agegroup25-34    1.910291   0.001569  1217.53   &lt;2e-16 ***
-## agegroup35+      1.699208   0.001569  1083.05   &lt;2e-16 ***
+##                 Estimate Std. Error z value Pr(&gt;|z|)   
+## (Intercept)      0.19521    0.87019   0.224  0.82250   
+## baselinePoor    -2.77610    0.98381  -2.822  0.00478 **
+## txtIntervention  3.41325    1.07267   3.182  0.00146 **
+## time             0.03718    0.06933   0.536  0.59176   
+## agegroup25-34    2.25651    1.00877   2.237  0.02529 * 
+## agegroup35+      1.98229    1.38118   1.435  0.15123   
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
-##             (Intr) bslnPr txtInt month3 month6 a25-34
-## baselinePor 0.000                                    
-## txtIntrvntn 0.000  0.000                             
-## month3      0.000  0.000  0.000                      
-## month6      0.000  0.000  0.000  0.000               
-## agegrp25-34 0.000  0.000  0.000  0.000  0.000        
-## agegroup35+ 0.000  0.000  0.000  0.000  0.000  0.000 
-## convergence code: 0
-## Model failed to converge with max|grad| = 0.0462242 (tol = 0.001, component 1)</code></pre>
+##             (Intr) bslnPr txtInt time   a25-34
+## baselinePor -0.374                            
+## txtIntrvntn -0.256 -0.449                     
+## time        -0.472 -0.016  0.047              
+## agegrp25-34 -0.319 -0.379  0.395  0.007       
+## agegroup35+ -0.195 -0.274  0.206 -0.007  0.390</code></pre>
+<p>The log odds ratio of good self rating is estimated to be 0.037 for a 1 unit increase in post-randomization month for the same subject.</p>
+<p>The main difference difference between the two interpretations from the GEE model and from a linear mixed model is that GEE models make inference about population average while linear mixed models make inference about individuals. The interpretation of linear mixed models should focus on the same subject.</p>
 </div>
 </div>
 
