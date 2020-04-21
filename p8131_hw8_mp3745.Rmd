@@ -12,6 +12,7 @@ library(nnet)
 library(MASS)
 library(pscl)
 library(nlme)
+library(lme4)
 library(readxl)
 library(gee)
 
@@ -80,4 +81,17 @@ gee_b = gee(resp ~ baseline + txt + month + agegroup, data = gee_health_df, fami
 summary(gee_b)
 ```
 
-Based on the model output, the log odds ratio of being in the good health condition for treatment vs control is 2.102 for a subject with the same baseline health, same month, and same agegroup. In addition, having a poor baseline health reading is associated with worse health outcomes. Month 3 and 6 are associated with slightly worse health outcome than month 12, indicating the self-rated health improves over time. Finally, age group 25-34 and 35+ are asssociated with better self health rating compared to age group 15-24.
+Based on the model output, the log odds ratio of self rating in good health condition for treatment vs control is 2.102 for a subject with the same baseline health, same month, and same agegroup. In addition, having a poor baseline health reading is associated with worse health outcomes. Month 3 and 6 are associated with slightly worse health outcome than month 12, indicating the self-rated health improves over time. Finally, age group 25-34 and 35+ are asssociated with better self health rating compared to age group 15-24.
+
+
+
+#### (c)
+
+Fit a generalized linear mixed effects model with subject-specific random intercepts
+```{r}
+#Fit GLMM
+glmm_c = glmer(resp ~ baseline + txt + month + agegroup + (1 | id), family = 'binomial', data = gee_health_df)
+
+summary(glmm_c)
+```
+
