@@ -12,6 +12,8 @@ library(nnet)
 library(MASS)
 library(pscl)
 library(nlme)
+library(readxl)
+library(gee)
 
 knitr::opts_chunk$set(
 	echo = TRUE,
@@ -28,3 +30,27 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ```
+
+## Problem 1
+
+#### (a)
+
+Read in the data
+```{r}
+health_df = read_excel("./data/HW8-HEALTH.xlsx") %>% 
+  janitor::clean_names()
+```
+
+Evaluate the bivariate, cross-sectional relationship between randomized group assignment and participants health self-rating at the time of randomization
+```{r}
+# dataframe with baseline data
+baseline_health_df = health_df %>% 
+  filter(time == 1)
+
+# Chi-squared test to evaluate relationship
+chisq.test(table(baseline_health_df$txt, baseline_health_df$health))
+```
+
+Since the p-value from the chi-squared test of independence is greater than 0.05, we fail to reject the null hypothesis of no association between treatment group and health self rating at the time of randomization. This is good because we want balanced self health ratings for the two treatment groups.
+
+
